@@ -2,11 +2,12 @@ package com.definitelyubi.textrpg;
 
 import com.definitelyubi.textrpg.dbtools.DatabaseConnection;
 import com.definitelyubi.textrpg.listeners.EventListener;
+import com.definitelyubi.textrpg.slash_handler.SlashHandler;
 import io.github.cdimascio.dotenv.Dotenv;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
-import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -15,11 +16,12 @@ import java.util.logging.Logger;
 public class TextRPG {
 
     private static final Logger logger = Logger.getLogger(DatabaseConnection.class.getName());
+
+    private static JDA jda;
     private final Dotenv config;
-    private final ShardManager shardManager;
     public DatabaseConnection databaseConnection;
 
-    public TextRPG() throws InvalidTokenException, SQLException {
+    public TextRPG() throws InvalidTokenException, SQLException, InterruptedException {
 
         config = Dotenv.configure().load();
 
@@ -28,15 +30,18 @@ public class TextRPG {
         String databaseUsername = config.get("DB_USER");
         String databasePassword = config.get("DB_PASSWORD");
 
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token);
-        builder.setStatus(OnlineStatus.IDLE);
-
-        shardManager = builder.build();
+        jda = JDABuilder.createDefault(token)
+                .setStatus(OnlineStatus.IDLE)
+                .build()
+                .awaitReady();
 
         databaseConnection = new DatabaseConnection(databasePath, databaseUsername, databasePassword);
         logger.info("Database connection created for TextRPG");
 
-        shardManager.addEventListener(new EventListener(databasePath, databaseUsername, databasePassword, databaseConnection));
+        jda.addEventListener(
+                new EventListener(databasePath, databaseUsername, databasePassword, databaseConnection),
+                new SlashHandler(jda)
+        );
 
         // Option 2 to close connection in case of unexpected death of bot
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -61,11 +66,11 @@ public class TextRPG {
         return config;
     }
 
-    public ShardManager getShardManager() {
-        return shardManager;
+    public static JDA getJDA() {
+        return jda;
     }
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, InterruptedException {
         TextRPG bot = new TextRPG();
     }
 
