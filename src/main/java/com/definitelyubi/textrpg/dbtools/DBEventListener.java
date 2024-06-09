@@ -1,6 +1,5 @@
-package com.definitelyubi.textrpg.listeners;
+package com.definitelyubi.textrpg.dbtools;
 
-import com.definitelyubi.textrpg.dbtools.DatabaseConnection;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,12 +9,12 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EventListener extends ListenerAdapter {
+public class DBEventListener extends ListenerAdapter {
 
-    private static final Logger logger = Logger.getLogger(EventListener.class.getName());
+    private static final Logger logger = Logger.getLogger(DBEventListener.class.getName());
     private final DatabaseConnection databaseConnection;
 
-    public EventListener(String databasePath, String databaseUsername, String databasePassword, DatabaseConnection databaseConnection) {
+    public DBEventListener(String databasePath, String databaseUsername, String databasePassword, DatabaseConnection databaseConnection) {
         this.databaseConnection = databaseConnection;
     }
 
