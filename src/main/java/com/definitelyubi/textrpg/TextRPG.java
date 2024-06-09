@@ -1,7 +1,7 @@
 package com.definitelyubi.textrpg;
 
 import com.definitelyubi.textrpg.dbtools.DatabaseConnection;
-import com.definitelyubi.textrpg.listeners.EventListener;
+import com.definitelyubi.textrpg.dbtools.DBEventListener;
 import com.definitelyubi.textrpg.slash_handler.SlashHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
@@ -19,7 +19,7 @@ public class TextRPG {
 
     private static JDA jda;
     private final Dotenv config;
-    public DatabaseConnection databaseConnection;
+    public static DatabaseConnection databaseConnection;
 
     public TextRPG() throws InvalidTokenException, SQLException, InterruptedException {
 
@@ -39,7 +39,7 @@ public class TextRPG {
         logger.info("Database connection created for TextRPG");
 
         jda.addEventListener(
-                new EventListener(databasePath, databaseUsername, databasePassword, databaseConnection),
+                new DBEventListener(databasePath, databaseUsername, databasePassword, databaseConnection),
                 new SlashHandler(jda)
         );
 
@@ -64,6 +64,10 @@ public class TextRPG {
 
     public Dotenv getConfig() {
         return config;
+    }
+
+    public static DatabaseConnection getDatabaseConnection() {
+        return databaseConnection;
     }
 
     public static JDA getJDA() {
